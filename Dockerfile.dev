@@ -1,14 +1,18 @@
-FROM node:20-bullseye-slim
+# ベースイメージをNode.js v21のものに変更
+FROM node:21-bullseye-slim
 
 WORKDIR /workspace/next_app
 
+# node_modulesディレクトリを作成
 RUN mkdir -p /workspace/next_app/node_modules
 
-# 依存関係をインストール
-COPY next_app/package.json next_app/yarn.lock* ./
+# package.jsonとpackage-lock.jsonをコピー
+COPY next_app/package.json next_app/package-lock.json* ./
 
-RUN yarn install
+# npmを使用して依存関係をインストール
+RUN npm install
 
+# ファイルの所有権をnodeユーザーに変更
 RUN chown -R node:node ./
 USER node
 
@@ -16,6 +20,5 @@ USER node
 ARG NEXT_TELEMETRY_DISABLED=1
 ENV NEXT_TELEMETRY_DISABLED=$NEXT_TELEMETRY_DISABLED
 
-# 注意: ポートのマッピングはdocker-composeで行うため、設定しない
-
-CMD ["yarn", "dev"]
+# Next.jsの開発サーバーを起動
+CMD ["npm", "run", "dev"]
